@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Putraland - Data Pengunjung</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* CARD */
+form {
+  background:#ffffff;
+  width:90%;
+  max-width:360px;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 0 30px rgba(0,0,0,.5);
+  position:relative;
+}
+
+/* LOGO */
+.logo {
+  text-align:center;
+}
+.logo img {
+  width:140px;
+}
+
+/* TEXT */
+h2 {
+  text-align:center;
+  color:#0f172a;
+}
+input, button {
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+button {
+  background: linear-gradient(135deg,#d97706,#facc15);
+  border:none;
+  font-weight:bold;
+}
+
+/* LOADING OVERLAY */
+#loading {
+  position:absolute;
+  inset:0;
+  background:rgba(2,6,23,0.92);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  border-radius:14px;
+  color:#fff;
+  text-align:center;
+}
+.loader {
+  width:40px;
+  height:40px;
+  border:4px solid #fff;
+  border-top-color:gold;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin-bottom:10px;
+}
+@keyframes spin {
+  100% {transform:rotate(360deg);}
+}
+.error {
+  color:red;
+  font-size:13px;
+  display:none;
+  margin-top:4px;
+}
+</style>
+</head>
+<body>
+
+<form id="myForm">
+
+  <div class="logo">
+    <img src="logo-putraland.png">
+  </div>
+
+  <h2>Data Pengunjung</h2>
+
+  <input type="text" id="nama" placeholder="Nama" required>
+  <input type="text" id="alamat" placeholder="Alamat" required>
+  <input type="tel" id="whatsapp" placeholder="08xxxxxxxx / 62xxxxxxxx" required>
+  <div class="error" id="waError">Nomor WA tidak valid</div>
+
+  <button type="submit">AYO BERMAIN</button>
+
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="loader"></div>
+    <div>Sedang memproses...</div>
+  </div>
+
+</form>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbwboRHvQmFpZ-J2TNOa6bd-6KcbIIsqjFpETeo8jBfPBGv8Xy4uE3ZToLWh1-HIt5AS7w/exec";
+
+// VALIDASI WA
+function validWA(nomor){
+  return /^(62|0)8[1-9][0-9]{7,10}$/.test(nomor);
+}
+
+document.getElementById("myForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  let wa = document.getElementById("whatsapp").value.trim().replace(/\s+/g,'');
+  let error = document.getElementById("waError");
+
+  if(!validWA(wa)){
+    error.style.display="block";
+    return;
+  } else {
+    error.style.display="none";
+  }
+
+  // SHOW LOADING
+  document.getElementById("loading").style.display = "flex";
+
+  // DATA
+  let data = JSON.stringify({
+    nama: document.getElementById("nama").value,
+    alamat: document.getElementById("alamat").value,
+    whatsapp: wa
+  });
+
+  // KIRIM (TIDAK NUNGGU RESPONSE)
+  fetch(scriptURL, {
+    method: "POST",
+    headers: {"Content-Type":"text/plain;charset=utf-8"},
+    body: data
+  });
+
+  // ✅ PAKSA REDIRECT SETELAH 1 DETIK
+  setTimeout(function(){
+    window.location.href = "gsistem.html";
+  }, 1000);
+
+});
+</script>
+
+</body>
+</html>

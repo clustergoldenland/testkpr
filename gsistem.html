@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Cek Limit KPR - Putraland</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin:0;
+  background: linear-gradient(135deg,#020617,#0f172a);
+  font-family: Arial, sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card {
+  background:white;
+  width:100%;
+  max-width:400px;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 0 20px rgba(0,0,0,.5);
+}
+.logo {
+  text-align:center;
+}
+.logo img {
+  width:130px;
+}
+h2 {
+  text-align:center;
+  color:#0f172a;
+}
+label {
+  font-size:14px;
+  margin-top:10px;
+  display:block;
+}
+select, input, button {
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+button {
+  margin-top:14px;
+  background: linear-gradient(135deg,#d97706,#facc15);
+  font-weight:bold;
+  border:none;
+}
+.result {
+  display:none;
+  margin-top:14px;
+  background:#0f172a;
+  color:white;
+  padding:12px;
+  border-radius:8px;
+}
+.small {
+  font-size:12px;
+  opacity:.8;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <img src="logo-putraland.png">
+  </div>
+
+  <h2>Simulasi Limit KPR</h2>
+
+  <label>Profesi / Pekerjaan</label>
+  <select id="pekerjaan">
+    <option>Karyawan</option>
+    <option>Wiraswasta</option>
+    <option>PNS</option>
+    <option>Freelancer</option>
+  </select>
+
+  <label>Status Penghasilan</label>
+  <select id="status">
+    <option value="single">Single Income</option>
+    <option value="join">Join Income (Suami / Istri)</option>
+  </select>
+
+  <label>Pendapatan per Bulan</label>
+  <input type="text" id="gaji" placeholder="Rp 6.000.000" oninput="formatRupiah(this)">
+
+  <label id="gaji2Label" style="display:none;">Pendapatan Pasangan</label>
+  <input type="text" id="gaji2" placeholder="Rp 4.000.000" style="display:none;" oninput="formatRupiah(this)">
+
+  <button onclick="cekKPR()">CEK PLAFON KREDIT</button>
+
+  <div class="result" id="hasil"></div>
+</div>
+
+<script>
+/* tampilkan input pasangan */
+document.getElementById("status").addEventListener("change", function(){
+  let show = this.value === "join";
+  document.getElementById("gaji2").style.display = show ? "block" : "none";
+  document.getElementById("gaji2Label").style.display = show ? "block" : "none";
+});
+
+/* Fungsi format rupiah */
+function formatRupiah(input) {
+  let angka = input.value.replace(/[^\d]/g,'');
+  input.value = new Intl.NumberFormat('id-ID').format(angka);
+}
+
+/* Ambil angka asli */
+function cleanNumber(value){
+  return parseInt(value.replace(/\./g,'')) || 0;
+}
+
+function rupiah(angka){
+  return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(angka);
+}
+
+function cekKPR(){
+  let status = document.getElementById("status").value;
+  let gaji1 = cleanNumber(document.getElementById("gaji").value);
+  let gaji2 = cleanNumber(document.getElementById("gaji2").value);
+  let hasil = document.getElementById("hasil");
+
+  if(!gaji1 || gaji1 < 1000000){
+    hasil.style.display="block";
+    hasil.innerHTML = "❌ Masukkan pendapatan valid";
+    return;
+  }
+
+  let total = status === "join" ? (gaji1 + gaji2) : gaji1;
+
+  /* LOGIKA ANDA */
+  let angsuran = total * 0.6;
+  let biaya = total * 0.4;
+
+  /* Estimasi plafon */
+  let plafon = angsuran * 138;
+
+  hasil.style.display="block";
+  hasil.innerHTML = `
+    💼 Total Income: <b>${rupiah(total)}</b><br>
+    💳 Angsuran Max (60%): <b>${rupiah(angsuran)}</b><br>
+   🏠 Recomendasi Hunian: <br>
+    <b style="font-size:18px;">${rupiah(Math.round(plafon))}</b><br><br>
+    <span class="small">*Simulasi kasar, hasil riil tergantung kebijakan bank.</span>
+  `;
+}
+</script>
+
+</body>
+</html>
